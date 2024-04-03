@@ -111,3 +111,4 @@ build/
 .vscode/
 
 shopapp-springboot/shopapp/.mvn/wrapper/maven-wrapper.properties
+shopapp-springboot/shopapp/src/main/resources/application.yaml
