@@ -1,0 +1,35 @@
+# Compiled Java class files
+*.class
+
+# Compiled TypeScript files
+*.js
+*.js.map
+
+# Log files
+*.log
+
+# IntelliJ IDEA
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Node modules
+node_modules/
+
+# Angular build artifacts
+/dist/
+
+# Spring Boot build artifacts
+/target/
+
+# IDE-specific files
+*.iml
+*.ipr
+*.iws
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
