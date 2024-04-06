@@ -1,0 +1,48 @@
+package com.dat.shopapp.dtos;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDTO {
+    @JsonProperty("fullname")
+    private String fullName;
+
+    @NotBlank(message = "Phone number is required")
+    @Size(min = 5, message = "Phone number must be at least 5 characters")
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+
+    @NotBlank(message = "Address is required")
+    private String address;
+
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
+    @JsonProperty("retype_password")
+    private String retypePassword;
+
+    @JsonProperty("date_of_birth")
+    private Date dateOfBirth;
+
+    @JsonProperty("facebook_account_id")
+    private int facebookAccountId;
+
+    @JsonProperty("google_account_id")
+    private int googleAccountId;
+
+    @NotNull(message = "Role ID is required")
+    @JsonProperty("role_id")
+    private Long roleId;
+}

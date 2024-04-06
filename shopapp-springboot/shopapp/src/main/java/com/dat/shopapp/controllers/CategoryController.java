@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/categories")
+@RequestMapping("${api.prefix}/categories")
 public class CategoryController {
     @GetMapping("")
     public ResponseEntity<String> getAllCategories(
@@ -22,7 +22,7 @@ public class CategoryController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> insertCategories(
+    public ResponseEntity<?> createCategories(
            @Valid @RequestBody CategoryDTO categoryDTO,
            BindingResult result
     ){
@@ -33,7 +33,7 @@ public class CategoryController {
                     .toList();
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        return ResponseEntity.ok("insert");
+        return ResponseEntity.ok("create");
     }
 
     @PutMapping("/{id}")

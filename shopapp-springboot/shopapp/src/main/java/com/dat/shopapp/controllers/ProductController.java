@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/products")
+@RequestMapping("${api.prefix}/products")
 public class ProductController {
     @GetMapping("")
     public ResponseEntity<String> getAllProducts(
@@ -39,7 +39,6 @@ public class ProductController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProducts(
             @Valid @ModelAttribute ProductDTO productDTO,
-//            @RequestPart("file") MultipartFile file,
             BindingResult result
     ) {
         try {
