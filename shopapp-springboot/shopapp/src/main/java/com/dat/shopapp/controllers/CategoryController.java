@@ -2,13 +2,12 @@ package com.dat.shopapp.controllers;
 
 import com.dat.shopapp.dtos.CategoryDTO;
 import com.dat.shopapp.models.Category;
-import com.dat.shopapp.services.CategoryService;
+import com.dat.shopapp.services.ICategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/categories")
 public class CategoryController {
-    private final CategoryService categoryService;
-
+    private final ICategoryService categoryService;
     @PostMapping("")
     public ResponseEntity<?> createCategory(
             @Valid @RequestBody CategoryDTO categoryDTO,
