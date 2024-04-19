@@ -2,10 +2,12 @@ package com.dat.shopapp.services;
 
 import com.dat.shopapp.models.Category;
 import com.dat.shopapp.repositories.CategoryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,11 @@ public class CategoryService implements ICategoryService{
 
     @Override
     public void deleteCategory(long id) {
-        categoryRepository.deleteById(id);
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isPresent()) {
+            categoryRepository.delete(optionalCategory.get());
+        } else {
+            throw new EntityNotFoundException("Category not found with id: " + id);
+        }
     }
 }

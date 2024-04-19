@@ -22,6 +22,7 @@ public class ProductDTO {
 
     private String description;
 
+    @NotNull(message = "Missing in category")
     @JsonProperty("category_id")
     private Long categoryId;
 

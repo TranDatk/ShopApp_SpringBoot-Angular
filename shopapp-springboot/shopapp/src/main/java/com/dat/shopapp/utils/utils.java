@@ -20,6 +20,6 @@ public class utils {
         }
         Path destination = Paths.get(uploadDir.toString(), uniqueFilename);
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return uniqueFilename;
+        return destination.toString();
     }
 }

@@ -17,26 +17,27 @@ import java.util.List;
 @RequestMapping("${api.prefix}/categories")
 public class CategoryController {
     private final ICategoryService categoryService;
+
     @PostMapping("")
     public ResponseEntity<?> createCategory(
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result
-    ){
-        if(result.hasErrors()){
+    ) {
+        if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        try{
+        try {
             Category newCategory = Category
                     .builder()
                     .name(categoryDTO.getName())
                     .build();
             categoryService.createCategory(newCategory);
             return ResponseEntity.ok("Category is created successfully");
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -45,11 +46,11 @@ public class CategoryController {
     public ResponseEntity<?> getAllCategories(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
-    ){
-        try{
+    ) {
+        try {
             List<Category> categories = categoryService.getAllCategories();
             return ResponseEntity.ok(categories);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -58,8 +59,8 @@ public class CategoryController {
     public ResponseEntity<?> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryDTO categoryDTO
-    ){
-        try{
+    ) {
+        try {
             Category newCategory = Category
                     .builder()
                     .id(id)
@@ -67,17 +68,17 @@ public class CategoryController {
                     .build();
             categoryService.updateCategory(id, newCategory);
             return ResponseEntity.ok("Category is updated successfully");
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategories(@PathVariable Long id){
-        try{
+    public ResponseEntity<?> deleteCategories(@PathVariable Long id) {
+        try {
             categoryService.deleteCategory(id);
             return ResponseEntity.ok(String.format("Category with id=%d is deleted successfully", id));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e);
         }
     }
