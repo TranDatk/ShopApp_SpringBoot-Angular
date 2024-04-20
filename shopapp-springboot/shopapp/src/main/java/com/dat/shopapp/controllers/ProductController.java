@@ -5,9 +5,17 @@ import com.dat.shopapp.dtos.ProductDTO;
 import com.dat.shopapp.models.Category;
 import com.dat.shopapp.models.Product;
 import com.dat.shopapp.models.ProductImage;
+import com.dat.shopapp.responses.ProductListResponse;
+import com.dat.shopapp.responses.ProductResponse;
+import com.dat.shopapp.services.CategoryService;
 import com.dat.shopapp.services.IProductService;
+import com.dat.shopapp.services.ProductService;
+import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -30,11 +38,19 @@ public class ProductController {
     private final IProductService productService;
 
     @GetMapping("")
-    public ResponseEntity<String> getAllProducts(
+    public ResponseEntity<ProductListResponse> getAllProducts(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
     ) {
-        return ResponseEntity.ok(String.format("getAll ,page=%d, limit=%d", page, limit));
+        PageRequest pageRequest = PageRequest.of(
+                page, limit, Sort.by("createdAt").descending());
+        Page<ProductResponse> productPage = productService.getAllProducts(pageRequest);
+        int totalPages = productPage.getTotalPages();
+        List<ProductResponse> products = productPage.getContent();
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .products(products)
+                .totalPages(totalPages)
+                .build());
     }
 
     @GetMapping("/{id}")
@@ -78,15 +94,18 @@ public class ProductController {
     public ResponseEntity<?> uploadImages(
             @Valid @ModelAttribute("files") List<MultipartFile> files,
             @PathVariable Long id
-
-    ){
-        try{
+    ) {
+        try {
             files = files == null ? new ArrayList<MultipartFile>() : files;
+            if (files.size() > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
+                return ResponseEntity.badRequest().body(String.format("You can only upload maximum %d images",
+                        ProductImage.MAXIMUM_IMAGES_PER_PRODUCT));
+            }
             Product existingProduct = productService.getProductById(id);
             List<ProductImage> productImages = new ArrayList<>();
             for (MultipartFile file : files) {
                 if (file.getSize() == 0) {
-                    continue;
+                    return ResponseEntity.badRequest().body("Images is null");
                 }
                 if (file.getSize() > 10 * 1024 * 1024) {
                     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is to large!");
@@ -105,7 +124,7 @@ public class ProductController {
                 productImages.add(createdProductImage);
             }
             return ResponseEntity.ok().body(productImages);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -118,5 +137,29 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         return ResponseEntity.ok("delete " + id);
+    }
+
+//    @PostMapping("generateFakeProducts")
+    private ResponseEntity<String> generateFakeProducts(){
+        try{
+            Faker faker = new Faker();
+            for(int i = 0; i < 1000; i++){
+                String productName = faker.commerce().productName();
+                if(productService.existsByName(productName)){
+                    continue;
+                }
+                Product product = Product.builder()
+                        .name(productName)
+                        .price((float)faker.number().numberBetween(10, 90000000))
+                        .description(faker.lorem().sentence())
+                        .thumbnail("")
+                        .category(Category.builder().id((long)faker.number().numberBetween(1,4)).build())
+                        .build();
+                productService.createProduct(product);
+            }
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Failed");
+        }
+        return ResponseEntity.ok("Fake successfully");
     }
 }

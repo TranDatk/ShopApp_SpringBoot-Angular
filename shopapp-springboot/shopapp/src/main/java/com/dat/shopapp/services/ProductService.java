@@ -8,6 +8,7 @@ import com.dat.shopapp.models.ProductImage;
 import com.dat.shopapp.repositories.CategoryRepository;
 import com.dat.shopapp.repositories.ProductImageRepository;
 import com.dat.shopapp.repositories.ProductRepository;
+import com.dat.shopapp.responses.ProductResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,14 +30,7 @@ public class ProductService implements IProductService{
                 .orElseThrow(
                         ()->new DataNotFoundException(String.format("Cannot find category with id = %d",categoryId))
                 );
-        Product newProduct = Product.builder()
-                .name(product.getName())
-                .price(product.getPrice())
-                .thumbnail(product.getThumbnail())
-                .description(product.getDescription())
-                .category(existingCategory)
-                .build();
-        return newProduct;
+        return productRepository.save(product);
     }
 
     @Override
@@ -46,8 +40,20 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public Page<Product> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest);
+    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+        return productRepository.findAll(pageRequest).map(product -> {
+            ProductResponse productResponse = ProductResponse.builder()
+                    .name(product.getName())
+                    .price(product.getPrice())
+                    .thumbnail(product.getThumbnail())
+                    .description(product.getDescription())
+                    .categoryId(product.getCategory().getId())
+                    .id(product.getId())
+                    .build();
+            productResponse.setCreatedAt(product.getCreatedAt());
+            productResponse.setUpdatedAt(product.getUpdatedAt());
+            return productResponse;
+        });
     }
 
     @Override
@@ -86,8 +92,9 @@ public class ProductService implements IProductService{
         long productId = productImage.getProduct().getId();
         // Không cần kiểm tra product có tồn tại không, vì đối số được lấy từ createdProduct
         int size = productImageRepository.findByProductId(productId).size();
-        if(size > 5){
-            throw new InvalidParamException("Number of images must be less or euqal 5");
+        if(size > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT){
+            throw new InvalidParamException("Number of images must be less or euqal "
+                    + ProductImage.MAXIMUM_IMAGES_PER_PRODUCT);
         }else{
             return productImageRepository.save(productImage);
         }
