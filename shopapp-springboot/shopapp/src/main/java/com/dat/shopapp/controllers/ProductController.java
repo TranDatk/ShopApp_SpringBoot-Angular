@@ -54,10 +54,15 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getProductById(
+    public ResponseEntity<?> getProductById(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok("get product id=" + id);
+        try{
+            Product existingProduct = productService.getProductById(id);
+            return ResponseEntity.ok(existingProduct);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 
@@ -136,7 +141,12 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        return ResponseEntity.ok("delete " + id);
+        try{
+            productService.deleteProduct(id);
+            return ResponseEntity.ok(String.format("Product with ID = %d deleted successfully", id));
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //    @PostMapping("generateFakeProducts")
